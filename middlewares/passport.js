@@ -3,12 +3,14 @@ const bcrypt = require("bcrypt");
 const JWTStrategy = require("passport-jwt").Strategy;
 const { fromAuthHeaderAsBearerToken } = require("passport-jwt").ExtractJwt;
 const config = require("../config/keys");
-const Temp = require("../models/Temp");
+const User = require("../models/User");
+const passport = require("passport");
 
 exports.localStrategy = new LocalStrategy(
+  { usernameField: "username" },
   async (username, password, done) => {
     try {
-      const user = await Temp.findOne({ username: username });
+      const user = await User.findOne({ username: username });
       if (!user) {
         return done(null, false);
       }
@@ -33,7 +35,7 @@ exports.jwtStrategy = new JWTStrategy(
       return done(null, false);
     }
     try {
-      const user = await Temp.findById(jwtPayload._id);
+      const user = await User.findById(jwtPayload._id);
       return done(null, user);
     } catch (error) {
       return done(error);
