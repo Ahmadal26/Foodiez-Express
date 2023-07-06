@@ -27,9 +27,17 @@ exports.signup = async (req, res, next) => {
     if (req.file) {
       req.body.profileImage = `${req.file.path}`;
     }
+
+    const { confirm_password } = req.body;
     const { password } = req.body;
+
     req.body.password = await passHash(password);
+    if (password !== confirm_password) {
+      throw new Error("Passwords must be the same");
+    }
+
     // create user
+
     const newUser = await User.create(req.body);
     // generate Token
     const token = generateToken(newUser);
@@ -40,12 +48,14 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-exports.signin = async (req, res) => {
+exports.signin = async (req, res, next) => {
   try {
-    const token = generateToken(req.user);
+    console.log(req.user);
+    const newUser = await User.findOne(req.user);
+    const token = generateToken(newUser);
     return res.status(200).json({ token });
   } catch (error) {
-    return res.status(500).json(error.message);
+    return next(error);
   }
 };
 
@@ -84,3 +94,13 @@ exports.deleteUser = async (req, res, next) => {
 //     return next(error);
 //   }
 // };
+// exports = async (confirmPassword, {req}) => {
+//       const password = req.body.password
+
+//       // If password and confirm password not same
+//       // don't allow to sign up and throw error
+//       if(password !== confirmPassword){
+//         throw new Error('Passwords must be same')
+//       }
+//     }),
+// }

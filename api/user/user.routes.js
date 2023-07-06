@@ -11,6 +11,10 @@ const {
 // const uploader = require("../../middlewares/uploader");
 const router = express.Router();
 const passport = require("passport");
+const {
+  validationRules,
+  validateFields,
+} = require("../../middlewares/validateFields");
 
 router.param("userId", async (req, res, next, userId) => {
   try {
@@ -25,7 +29,7 @@ router.param("userId", async (req, res, next, userId) => {
 
 router.get("/", passport.authenticate("jwt", { session: false }), getUser);
 //register - signup
-router.post("/signup", signup);
+router.post("/signup", validationRules(), validateFields, signup);
 //signin
 router.post(
   "/signin",
