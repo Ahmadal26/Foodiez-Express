@@ -7,6 +7,8 @@ const notFound = require("./middlewares/notFoundHandler");
 const errorHandler = require("./middlewares/errorHandler");
 const userRoutes = require("./api/user/user.routes");
 const categoryRouts = require("./api/category/category.routes");
+const recipeRouts = require("./api/recipe/recipe.routes");
+const ingredientRouts = require("./api/ingredient/ingredient.routes");
 const config = require("./config/keys");
 const passport = require("passport");
 const { localStrategy, jwtStrategy } = require("./middlewares/passport");
@@ -23,6 +25,9 @@ passport.use(jwtStrategy);
 // Everything with the word temp is a placeholder that you'll change in accordance with your project
 app.use("/user", userRoutes);
 app.use("/category", categoryRouts);
+app.use("/recipe", recipeRouts);
+app.use("/ingredient", ingredientRouts);
+
 app.use(notFound);
 app.use(errorHandler);
 
