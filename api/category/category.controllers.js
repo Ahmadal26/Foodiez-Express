@@ -12,7 +12,7 @@ exports.getAllCategory = async (req, res, next) => {
 exports.getByCategoryId = async (req, res, next) => {
   const { categoryId } = req.params;
   try {
-    const foundCategory = await Movie.findById(categoryId);
+    const foundCategory = await Category.findById(categoryId);
     if (!foundCategory) {
       res.status(404).json({ message: "Category not found" });
     } else {
