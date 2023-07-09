@@ -29,7 +29,7 @@ router.param("userId", async (req, res, next, userId) => {
 
 router.get("/", passport.authenticate("jwt", { session: false }), getUser);
 //register - signup
-router.post("/signup", validationRules(), validateFields, signup);
+router.post("/signup", signup);
 //signin
 router.post(
   "/signin",
