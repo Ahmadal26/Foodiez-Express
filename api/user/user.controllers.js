@@ -31,10 +31,10 @@ exports.signup = async (req, res, next) => {
     const { confirm_password } = req.body;
     const { password } = req.body;
 
-    req.body.password = await passHash(password);
     if (password !== confirm_password) {
       throw new Error("Passwords must be the same");
     }
+    req.body.password = await passHash(password);
 
     // create user
 
