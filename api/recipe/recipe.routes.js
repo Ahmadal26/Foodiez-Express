@@ -1,12 +1,12 @@
 const express = require("express");
 const routers = express.Router();
 const Recipe = require("../../models/Category");
-const uploader = require("../../middlewares/uploder");
+const uploader = require("../../middlewares/uploader");
 const {
   getAllRecipe,
   recipeCreate,
   getByRecipeId,
-  recipeUpdateById,
+  addRecipeToCategory,
   recipeDelete,
 } = require("./recipe.controller");
 
@@ -38,8 +38,8 @@ routers.post(
 routers.get("/:recipeId", getByRecipeId);
 routers.delete("/:recipeId", recipeDelete);
 routers.put(
-  "/:recipeId",
+  "/:recipeId/categoryId",
   passport.authenticate("jwt", { session: false }),
-  recipeUpdateById
+  addRecipeToCategory
 );
 module.exports = routers;

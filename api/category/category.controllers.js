@@ -26,9 +26,8 @@ exports.getByCategoryId = async (req, res, next) => {
 exports.categoryCreate = async (req, res, next) => {
   try {
     if (!req.user.isStaff) {
-      res.status(401).json({
+      return res.status(401).json({
         message: "You are not Admin and not authorized to create Category!",
-        error,
       });
     }
 
@@ -49,7 +48,7 @@ exports.categoryCreate = async (req, res, next) => {
 
 exports.categoryUpdateById = async (req, res, next) => {
   try {
-    const foundCategory = await Movie.findByIdAndUpdate(req.body._id);
+    const foundCategory = await Category.findByIdAndUpdate(req.body._id);
 
     if (!foundCategory) {
       return res.status(404).json({ message: " Category not Found" });
@@ -61,28 +60,16 @@ exports.categoryUpdateById = async (req, res, next) => {
 
 exports.categoryDelete = async (req, res, next) => {
   try {
-    if (!req.user.isStaff) {
-      res.status(401).json({
-        message: "You are not Admin and not authorized to delete a category!",
-        error,
-      });
-    }
-    const foundCategory = await Movie.findByIdAndDelete(req.body._id);
+    const staff = req.user.isStaff;
+    if (staff) {
+      await Category.deleteOne();
 
-    if (!foundCategory) {
-      return res.status(404).json({ message: " Category not Found" });
+      return res.status(204).end();
     }
+    return res.status(401).json({
+      msg: "You are not Admin and not authorized to delete a category!",
+    });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    next(error);
   }
 };
-// exports.categoryDelete = async (req, res, next) => {
-//   try {
-//     if (!req.user.isStaff)
-//       return next({ status: 401, message: "You are not Admin and not authorized to delete a category!" });
-//     await Actor.findByIdAndRemove({ _id: req.body.id });
-//     return res.status(204).end();
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
