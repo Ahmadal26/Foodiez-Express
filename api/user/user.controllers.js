@@ -31,10 +31,10 @@ exports.signup = async (req, res, next) => {
     const { confirm_password } = req.body;
     const { password } = req.body;
 
+    req.body.password = await passHash(password);
     if (password !== confirm_password) {
       throw new Error("Passwords must be the same");
     }
-    req.body.password = await passHash(password);
 
     // create user
 
@@ -59,7 +59,6 @@ exports.signin = async (req, res, next) => {
   }
 };
 
-// //7- a user can update a movie by id
 exports.userUpdateById = async (req, res, next) => {
   try {
     if (!req.user.isStaff) {
@@ -68,8 +67,7 @@ exports.userUpdateById = async (req, res, next) => {
         error,
       });
     }
-    const foundUser = await Movie.findByIdAndUpdate(req.body._id);
-
+    const foundUser = await User.findByIdAndUpdate(req.body._id);
     if (!foundUser) {
       return res.status(404).json({ message: " User not Found" });
     }

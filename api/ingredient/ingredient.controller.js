@@ -28,7 +28,6 @@ exports.ingredientCreate = async (req, res, next) => {
     if (!req.user.isStaff) {
       res.status(401).json({
         message: "You are not Admin and not authorized to create Ingredient!",
-        error,
       });
     }
 
@@ -67,7 +66,7 @@ exports.ingredientDelete = async (req, res, next) => {
         error,
       });
     }
-    const foundIngredient = await Movie.findByIdAndDelete(req.body._id);
+    const foundIngredient = await Ingredient.findByIdAndDelete(req.body._id);
 
     if (!foundIngredient) {
       return res.status(404).json({ message: " Ingredient not Found" });

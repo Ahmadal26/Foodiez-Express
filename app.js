@@ -34,5 +34,3 @@ app.use(errorHandler);
 app.listen(config.PORT, () => {
   console.log(`The application is running on ${config.PORT}`);
 });
-
-module.exports = app;

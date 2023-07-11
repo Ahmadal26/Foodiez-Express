@@ -2,19 +2,15 @@ const express = require("express");
 const {
   getUser,
   signup,
-  userUpdateById,
+
   deleteUser,
   fetchUser,
   signin,
 } = require("./user.controllers");
-//const multer = require("multer");
-// const uploader = require("../../middlewares/uploader");
+const multer = require("multer");
+const uploader = require("../../middlewares/uploader");
 const router = express.Router();
 const passport = require("passport");
-const {
-  validationRules,
-  validateFields,
-} = require("../../middlewares/validateFields");
 
 router.param("userId", async (req, res, next, userId) => {
   try {

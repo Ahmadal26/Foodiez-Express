@@ -1,7 +1,7 @@
 const express = require("express");
 const routers = express.Router();
 const Categories = require("../../models/Category");
-const uploader = require("../../middlewares/uploder");
+const uploader = require("../../middlewares/uploader");
 const {
   getAllCategory,
   categoryCreate,
