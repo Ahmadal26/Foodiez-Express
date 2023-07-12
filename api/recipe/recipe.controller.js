@@ -1,5 +1,14 @@
 const Recipe = require("../../models/Recipe");
 const Category = require("../../models/Category");
+const Ingredient = require("../../models/Ingredient");
+exports.fetchRecipe = async (recipeId, next) => {
+  try {
+    const recipe1 = await Recipe.findById(recipeId);
+    return recipe1;
+  } catch (error) {
+    return next({ status: 400, message: error.message });
+  }
+};
 exports.getAllRecipe = async (req, res, next) => {
   try {
     const recipe = await Recipe.find(); //.populate("username", "type -_id");
@@ -23,7 +32,7 @@ exports.getByRecipeId = async (req, res, next) => {
   }
 };
 
-exports.recipeCreate = async (req, res, next) => {
+exports.addRecipeToCategory = async (req, res, next) => {
   try {
     if (!req.user.isStaff) {
       return res.status(401).json({
@@ -45,39 +54,74 @@ exports.recipeCreate = async (req, res, next) => {
   }
 };
 
-exports.addRecipeToCategory = async (req, res, next) => {
+exports.recipeCreate = async (req, res, next) => {
   try {
-    if (!req.user.isStaff) {
-      return res.status(401).json({
-        message:
-          "You are not Admin and not authorized to add recipe to A category!",
-      });
+    req.body.author = req.user._id;
+    if (req.file) {
+      req.body.image = `${req.file.path.replace("\\", "/")}`;
     }
+    if (!req.body.image)
+      return next({ status: 400, message: "no image was uploaded!" });
 
-    const { recipeId, categoryId } = req.params;
-
-    const foundCategory = await Category.findById(categoryId);
-    if (!foundCategory) {
-      return res.status(404).json({ message: "Category not found" });
+    if (req.body.image.length < 5) {
+      req.body.image = "media/defaultImage.png";
     }
+    const { categories, ingredients, ...recipeData } = req.body;
 
-    const foundRecipe = await Recipe.findById(recipeId);
-    if (!foundRecipe) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
+    const newRecipe = await Recipe.create(recipeData);
 
-    if (foundRecipe && foundCategory) {
-      await Category.findOneAndUpdate(foundCategory._id, {
-        $push: { recipe: foundRecipe._id },
-      });
-      await Recipe.findOneAndUpdate(foundRecipe._id, {
+    await req.user.updateOne({ $push: { recipes: newRecipe._id } });
+    if (Array.isArray(categories)) {
+      if (categories?.length > 0) {
+        for (let categoryName of categories) {
+          const foundCategory = await Category.findOneAndUpdate(
+            { name: categoryName.toLowerCase() },
+            { $addToSet: { recipes: newRecipe._id } },
+            { upsert: true, new: true }
+          );
+          await newRecipe.updateOne({
+            $push: { categories: foundCategory._id },
+          });
+        }
+      }
+    } else {
+      const foundCategory = await Category.findOneAndUpdate(
+        { name: categories.toLowerCase() },
+        { $addToSet: { recipes: newRecipe._id } },
+        { upsert: true, new: true }
+      );
+      await newRecipe.updateOne({
         $push: { categories: foundCategory._id },
       });
-
-      return res.status(204).end();
     }
+
+    if (Array.isArray(ingredients)) {
+      if (ingredients?.length > 0) {
+        for (let ingredientName of ingredients) {
+          const foundIngredient = await Ingredient.findOneAndUpdate(
+            { name: ingredientName.toLowerCase() },
+            { $addToSet: { recipes: newRecipe._id } },
+            { upsert: true, new: true }
+          );
+          await newRecipe.updateOne({
+            $push: { ingredients: foundIngredient._id },
+          });
+        }
+      }
+    } else {
+      const foundIngredient = await Ingredient.findOneAndUpdate(
+        { name: ingredients.toLowerCase() },
+        { $addToSet: { recipes: newRecipe._id } },
+        { upsert: true, new: true }
+      );
+      await newRecipe.updateOne({
+        $push: { ingredients: foundIngredient._id },
+      });
+    }
+
+    return res.status(201).json(newRecipe);
   } catch (error) {
-    return next(error);
+    return next({ status: 400, message: error.message });
   }
 };
 

@@ -12,7 +12,7 @@ const ingredientRouts = require("./api/ingredient/ingredient.routes");
 const config = require("./config/keys");
 const passport = require("passport");
 const { localStrategy, jwtStrategy } = require("./middlewares/passport");
-
+const path = require("path");
 app.use(cors());
 connectDb();
 app.use(express.json());
@@ -23,6 +23,8 @@ passport.use("local", localStrategy);
 passport.use(jwtStrategy);
 
 // Everything with the word temp is a placeholder that you'll change in accordance with your project
+
+app.use("/media", express.static(path.join(__dirname, "media")));
 app.use("/user", userRoutes);
 app.use("/category", categoryRouts);
 app.use("/recipe", recipeRouts);
